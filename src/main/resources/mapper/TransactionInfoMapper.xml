@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.TransactionInfoDao">
+    <insert id="insertTransactionInfo">
+        INSERT INTO transaction_info(buyer_id, transaction_status)
+        VALUES (#{buyer}, #{status})
+    </insert>
+    <update id="updateTransactionInfoObject">
+        UPDATE transaction_info
+        <set>
+            <if test="buyerId != null">
+                buyer_id = #{buyerId},
+            </if>
+            <if test="transactionStatus != null">
+                transaction_status = #{transactionStatus}
+            </if>
+        </set>
+        <where>
+            transaction_id = #{transactionId}
+        </where>
+    </update>
+    <delete id="clearTransactionInfo">
+        DELETE
+        FROM transaction_info
+        WHERE transaction_id = #{id}
+    </delete>
+    <select id="fetchTransactionInfo" resultType="com.es.po.TransactionInfo">
+        SELECT transaction_id,
+               buyer_id,
+               transaction_status
+        FROM transaction_info
+        WHERE transaction_id = #{id}
+    </select>
+    <select id="queryTransactionByUserId" resultType="com.es.po.TransactionInfo">
+        SELECT transaction_id,
+               buyer_id,
+               transaction_status
+        FROM transaction_info
+        WHERE buyer_id = #{id}
+        ORDER BY transaction_id DESC
+    </select>
+    <select id="getIdByBuyer" resultType="java.lang.Long">
+        SELECT transaction_id
+        FROM transaction_info
+        WHERE buyer_id = #{id}
+    </select>
+    <select id="getUncompletedIdByBuyer" resultType="java.lang.Long">
+        SELECT transaction_id
+        FROM transaction_info
+        WHERE buyer_id = #{id}
+          AND transaction_status = 1
+    </select>
+    <select id="queryTransactionDatas" resultType="com.es.vo.TransactionDataVo">
+        SELECT user_details.user_id                   AS id,
+               user_details.user_name                 AS name,
+               transaction_details.transaction_amount AS amount,
+               transaction_details.transaction_time   AS time
+        FROM user_details,
+             transaction_details,
+             transaction_info,
+             transaction_staff,
+             staff
+        WHERE transaction_info.buyer_id = #{id}
+          AND transaction_info.transaction_id = transaction_details.transaction_id
+          AND transaction_info.transaction_id = transaction_staff.transaction_id
+          AND transaction_staff.staff_id = staff.staff_id
+          AND staff.user_id = user_details.user_id
+        ORDER BY transaction_info.transaction_id DESC
+    </select>
+</mapper>

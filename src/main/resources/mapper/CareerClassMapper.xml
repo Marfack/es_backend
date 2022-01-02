@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.CareerClassDao">
+    <insert id="insertCareerClass">
+        INSERT INTO career_class(class_name)
+        VALUES (#{name})
+    </insert>
+    <delete id="clearCareerClass">
+        DELETE FROM career_class
+        WHERE class_id = #{classId}
+    </delete>
+    <select id="fetchCareerClass" resultType="com.es.po.CareerClass">
+        SELECT class_id, class_name
+        FROM career_class
+        WHERE class_id = #{id}
+    </select>
+    <select id="queryCareerClasses" resultType="com.es.po.CareerClass">
+        SELECT class_id, class_name
+        FROM career_class
+    </select>
+    <select id="queryCareers" resultType="com.es.po.CareerInfo">
+        SELECT career_id,
+               career_name,
+               class_id
+        FROM career_info
+        WHERE class_id = #{id}
+    </select>
+</mapper>

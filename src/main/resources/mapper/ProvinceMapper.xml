@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.ProvinceDao">
+    <insert id="insertProvinces">
+        INSERT INTO province(province_name)
+        VALUES
+        <foreach collection="provinces" item="province" separator=",">
+            (#{province})
+        </foreach>
+    </insert>
+    <select id="fetchProvinceName" resultType="java.lang.String">
+        SELECT province_name
+        FROM province
+        WHERE province_id = #{id}
+    </select>
+    <select id="fetchProvince" resultType="com.es.po.Province">
+        SELECT province_id, province_name
+        FROM province
+        WHERE province_id = #{id}
+    </select>
+    <select id="queryCities" resultType="com.es.po.City">
+        SELECT city_id, city_name
+        FROM city
+        WHERE province_id = #{id}
+    </select>
+    <select id="queryProvinces" resultType="com.es.po.Province">
+        SELECT province_id,
+               province_name
+        FROM province
+    </select>
+</mapper>

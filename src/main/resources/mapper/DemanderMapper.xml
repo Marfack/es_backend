@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.DemanderDao">
+    <insert id="insertDemanderObject">
+        INSERT INTO demander(user_id, hire_times, enterprise_description)
+        VALUES (#{userId}, #{hireTimes}, #{enterpriseDescription})
+    </insert>
+    <insert id="insertDemander">
+        INSERT INTO demander(user_id, enterprise_description)
+        VALUES (#{id}, #{description})
+    </insert>
+    <update id="updateDemanderObject">
+        UPDATE demander
+        <set>
+            <if test="hireTimes > 0">
+                hire_times = #{hireTimes},
+            </if>
+            <if test="enterpriseDescription != null">
+                enterprise_description = #{enterpriseDescription}
+            </if>
+        </set>
+        <where>
+            user_id = #{userId}
+        </where>
+    </update>
+    <update id="updateHireTimes">
+        UPDATE demander
+        SET hire_times = #{times}
+        WHERE user_id = #{id}
+    </update>
+    <update id="updateDescription">
+        UPDATE demander
+        SET enterprise_description = #{description}
+        WHERE user_id = #{id}
+    </update>
+    <delete id="clearDemander">
+        DELETE
+        FROM demander
+        WHERE user_id = #{id}
+    </delete>
+    <select id="fetchDemander" resultType="com.es.po.Demander">
+        SELECT user_id,
+               hire_times,
+               enterprise_description
+        FROM demander
+        WHERE user_id = #{id}
+    </select>
+    <select id="queryTransactionInfo" resultType="com.es.po.TransactionInfo">
+        SELECT transaction_id,
+               buyer_id,
+               seller_id,
+               transaction_status
+        FROM transaction_info
+        WHERE buyer_id = #{id}
+    </select>
+</mapper>

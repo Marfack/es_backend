@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.StaffCareerDao">
+    <insert id="insertStaffCareerObject">
+        INSERT INTO staff_career(staff_id, career_id)
+        VALUES (#{staffId}, #{careerId})
+    </insert>
+    <insert id="insertStaffCareerObjects">
+        INSERT INTO staff_career(staff_id, career_id)
+        VALUES
+        <foreach collection="staffCareers" item="staffCareer" separator=",">
+            (#{staffCareer.staffId}, #{staffCareer.careerId})
+        </foreach>
+    </insert>
+    <insert id="insertStaffs">
+        INSERT INTO staff_career(staff_id, career_id)
+        VALUES
+        <foreach collection="staffs" item="staff" separator=",">
+            (#{id}, #{staff})
+        </foreach>
+    </insert>
+    <delete id="removeCareersOfStaff">
+        DELETE FROM staff_career WHERE staff_id = #{staffId}
+    </delete>
+    <delete id="clearStaffCareer">
+        DELETE FROM staff_career
+        WHERE career_id = #{careerId} AND staff_id = #{staffId}
+    </delete>
+    <delete id="removeStaffCareers">
+        DELETE FROM staff_career
+        WHERE (career_id, staff_id) IN
+        <foreach collection="staffCareers" item="staffCareer" open="(" close=")" separator=",">
+            (#{staffCareer.careerId}, #{staffCareer.staffId})
+        </foreach>
+    </delete>
+    <select id="queryCareersOfStaff" resultType="com.es.po.CareerInfo">
+        SELECT career_info.career_id,
+               career_info.career_name,
+               career_info.class_id
+        FROM staff_career,
+             career_info
+        WHERE staff_career.staff_id = #{id}
+          AND staff_career.career_id = career_info.career_id
+    </select>
+    <select id="queryStaffsOfCareer" resultType="com.es.po.Staff">
+        SELECT staff.staff_id,
+               staff.user_id,
+               staff.city_id,
+               staff.staff_description,
+               staff.staff_name,
+               staff.staff_age,
+               staff.staff_sex
+        FROM staff_career,
+             staff
+        WHERE staff_career.career_id = #{id}
+          AND staff_career.staff_id = staff.staff_id
+    </select>
+</mapper>

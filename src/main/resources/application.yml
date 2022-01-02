@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    username: *
+    password: *
+    url: jdbc:mysql://*:3306/es?useUnicode=true&serverTimezone=Asia/Shanghai&characterSet=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    locale: zh_CN
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  mail:
+    default-encoding: UTF-8
+    username: *
+    password: *
+    host: smtp.qq.com
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+        debug: true
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.marfack.springboot.pojo
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    mapUnderscoreToCamelCase: true

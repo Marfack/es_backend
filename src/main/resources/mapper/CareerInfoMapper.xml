@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.CareerInfoDao">
+    <insert id="insertCareerInfos">
+        INSERT INTO career_info (career_name, class_id)
+        VALUES
+        <foreach collection="names" item="name" separator=",">
+            (#{name}, #{class})
+        </foreach>
+    </insert>
+    <delete id="clearCareerInfo">
+        DELETE
+        FROM career_info
+        WHERE career_id = #{id}
+    </delete>
+    <select id="fetchCareerInfo" resultType="com.es.po.CareerInfo">
+        SELECT career_id, career_name, class_id
+        FROM career_info
+        WHERE career_id = #{id}
+    </select>
+    <select id="queryCareerInfo" resultType="com.es.po.CareerInfo">
+        SELECT career_id, career_name, class_id
+        FROM career_info
+        WHERE class_id = #{id}
+    </select>
+    <select id="queryCareerOfStaff" resultType="com.es.po.CareerInfo">
+        SELECT career_info.career_id,
+               career_info.career_name,
+               career_info.class_id
+        FROM career_info,
+             staff_career
+        WHERE staff_career.staff_id = #{id}
+          AND career_info.career_id = staff_career.career_id
+    </select>
+</mapper>

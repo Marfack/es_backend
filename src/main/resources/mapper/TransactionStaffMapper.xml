@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.TransactionStaffDao">
+    <insert id="insertTransactionStaff">
+        INSERT INTO transaction_staff(transaction_id, staff_id)
+        VALUES (#{transactionId}, #{staffId})
+    </insert>
+    <insert id="insertTransactionStaffs">
+        INSERT INTO transaction_staff(transaction_id, staff_id)
+        VALUES
+        <foreach collection="transactionStaffs" item="transactionStaff" separator=",">
+            (#{transactionStaff.transactionId}, #{transactionStaff.staffId})
+        </foreach>
+    </insert>
+    <delete id="clearTransactionStaff">
+        DELETE
+        FROM transaction_staff
+        WHERE transaction_id = #{transactionId}
+          AND staff_id = #{staffId}
+    </delete>
+    <delete id="removeTransactionStaffs">
+        DELETE FROM transaction_staff
+        WHERE (transaction_id, staff_id) IN
+        <foreach collection="transactionStaffs" item="transactionStaff" separator="," open="(" close=")">
+            (#{transactionStaff.transactionId}, #{transactionStaff.staffId})
+        </foreach>
+    </delete>
+    <select id="queryTransactionOfStaff" resultMap="com.es.dao.TransactionDetailsDao.transactionDto">
+        SELECT transaction_info.transaction_id AS tid,
+               buyer_id AS bid,
+               transaction_status AS ts,
+               transaction_amount AS ta,
+               transaction_time AS tt
+        FROM transaction_info,
+             transaction_details,
+             transaction_staff
+        WHERE staff_id = #{id}
+          AND transaction_staff.transaction_id = transaction_info.transaction_id
+          AND transaction_staff.transaction_id = transaction_details.transaction_id
+    </select>
+    <select id="queryStaffOfTransaction" resultType="com.es.po.Staff">
+        SELECT transaction_staff.staff_id,
+               user_id,
+               city_id,
+               staff_description,
+               staff_name,
+               staff_age,
+               staff_sex
+        FROM transaction_staff,
+             staff
+        WHERE transaction_staff.staff_id = staff.staff_id
+          AND transaction_id = #{id}
+    </select>
+</mapper>

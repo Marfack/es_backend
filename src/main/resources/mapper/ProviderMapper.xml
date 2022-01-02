@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.ProviderDao">
+    <insert id="insertProviderObject">
+        INSERT INTO provider (user_id, provide_times, total_score, provider_description)
+        VALUES (#{userId}, #{provideTimes}, #{totalScore}, #{providerDescription})
+    </insert>
+    <update id="updateProviderObject">
+        UPDATE provider
+        <set>
+            <if test="provideTimes > 0">
+                provide_times = #{provideTimes},
+            </if>
+            <if test="totalScore > 0">
+                total_score = #{totalScore},
+            </if>
+            <if test="providerDescription != null">
+                provider_description = #{providerDescription}
+            </if>
+        </set>
+        <where>
+            user_id = #{userId}
+        </where>
+    </update>
+    <delete id="clearProvider">
+        DELETE FROM provider
+        WHERE user_id = #{id}
+    </delete>
+    <select id="fetchProvider" resultType="com.es.po.Provider">
+        SELECT user_id,
+               provide_times,
+               total_score,
+               provider_description
+        FROM provider
+        WHERE user_id = #{id}
+    </select>
+    <select id="queryStaffs" resultType="com.es.po.Staff">
+        SELECT staff_id,
+               user_id,
+               city_id,
+               staff_description,
+               staff_name,
+               staff_age,
+               staff_sex
+        FROM staff
+        WHERE user_id = #{id};
+    </select>
+    <select id="queryTransactionInfo" resultType="com.es.po.TransactionInfo">
+        SELECT transaction_id,
+               buyer_id,
+               transaction_status
+        FROM transaction_info
+        WHERE buyer_id = #{id}
+    </select>
+</mapper>

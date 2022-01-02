@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.StaffDao">
+    <insert id="insertStaffObject">
+        INSERT INTO staff(staff_id,
+                          user_id,
+                          city_id,
+                          staff_description,
+                          staff_name,
+                          staff_age,
+                          staff_sex,
+                          expected_salary)
+        VALUES (#{staffId},
+                #{userId},
+                #{cityId},
+                #{staffDescription},
+                #{staffName},
+                #{staffAge},
+                #{staffSex},
+                #{expectedSalary})
+    </insert>
+    <insert id="insertStaffsVo" useGeneratedKeys="true" keyProperty="staffId">
+        INSERT INTO staff(user_id,
+        city_id,
+        staff_description,
+        staff_name,
+        staff_age,
+        staff_sex,
+        expected_salary)
+        VALUES
+        <foreach collection="staffs" item="staff" separator=",">
+            (#{id},
+            #{staff.cityId},
+            #{staff.staffDescription},
+            #{staff.staffName},
+            #{staff.staffAge},
+            #{staff.staffSex},
+            #{staff.expectedSalary})
+        </foreach>
+    </insert>
+    <insert id="insertStaffVoAndGetId" parameterType="com.es.vo.StaffRegisterVo"
+            useGeneratedKeys="true" keyProperty="staff.staffId">
+        INSERT INTO staff(user_id,
+                          city_id,
+                          staff_description,
+                          staff_name,
+                          staff_age,
+                          staff_sex,
+                          expected_salary)
+        VALUES (#{userId},
+                #{staff.cityId},
+                #{staff.staffDescription},
+                #{staff.staffName},
+                #{staff.staffAge},
+                #{staff.staffSex},
+                #{staff.expectedSalary})
+    </insert>
+    <update id="updateStaffObject">
+        UPDATE staff
+        <set>
+            <if test="staffDescription != null">
+                staff_description = #{staffDescription},
+            </if>
+            <if test="staffName != null">
+                staff_name = #{staffName},
+            </if>
+            <if test="staffAge != null">
+                staff_age = #{staffAge},
+            </if>
+            <if test="staffSex != null">
+                staff_sex = #{staffSex},
+            </if>
+            <if test="expectedSalary != 0">
+                expected_salary = #{expectedSalary},
+            </if>
+            <if test="staffStatus != null">
+                staff_status = #{staffStatus},
+            </if>
+        </set>
+        <where>
+            staff_id = #{staffId}
+        </where>
+    </update>
+    <delete id="clearStaff">
+        DELETE
+        FROM staff
+        WHERE staff_id = #{id}
+    </delete>
+    <select id="fetchStaff" resultType="com.es.po.Staff">
+        SELECT staff_id,
+               user_id,
+               city_id,
+               staff_description,
+               staff_name,
+               staff_age,
+               staff_sex,
+               expected_salary,
+               staff_status
+        FROM staff
+        WHERE staff_id = #{id}
+    </select>
+    <select id="queryStaffOfCareer" resultMap="staffDto">
+        SELECT staff_career.staff_id  AS sid,
+               staff.staff_name       AS sname,
+               staff.user_id          AS uid,
+               user_details.user_name AS uname,
+               staff.expected_salary  AS salary,
+               staff.staff_status     AS ss
+        FROM staff,
+             user_details,
+             staff_career
+        WHERE staff_career.career_id = #{id}
+          AND staff.staff_status = 0
+          AND staff.user_id = user_details.user_id
+          AND staff.staff_id = staff_career.staff_id
+        LIMIT #{page}, 10
+    </select>
+    <resultMap id="staffDto" type="com.es.vo.StaffInfoVo">
+        <id property="staffId" column="sid"/>
+        <result property="staffName" column="sname"/>
+        <result property="enterpriseId" column="uid"/>
+        <result property="enterpriseName" column="uname"/>
+        <result property="expectedSalary" column="salary"/>
+        <result property="status" column="ss"/>
+        <collection property="careers" ofType="com.es.po.CareerInfo"
+                    select="com.es.dao.CareerInfoDao.queryCareerOfStaff" column="{id=sid}"/>
+    </resultMap>
+    <select id="fetchStaffDetails" resultMap="staffDetailsDto">
+        SELECT staff.staff_id          AS sid,
+               staff.staff_name        AS sname,
+               staff.staff_sex         AS ssex,
+               staff.staff_age         AS sage,
+               staff.city_id           AS cid,
+               city.city_name          AS cname,
+               province.province_id    AS pid,
+               province.province_name  AS pname,
+               staff.expected_salary   AS salary,
+               staff.staff_description AS `description`,
+               staff.user_id           AS uid,
+               staff.staff_status      AS ss,
+               user_details.user_name  AS uname
+        FROM staff,
+             user_details,
+             city,
+             province
+        WHERE staff.staff_id = #{id}
+          AND staff.user_id = user_details.user_id
+          AND staff.city_id = city.city_id
+          AND city.province_id = province.province_id
+    </select>
+    <resultMap id="staffDetailsDto" type="com.es.vo.StaffDetailsVo">
+        <id property="staffId" column="sid"/>
+        <result property="staffName" column="sname"/>
+        <result property="cityId" column="cid"/>
+        <result property="cityName" column="cname"/>
+        <result property="provinceId" column="pid"/>
+        <result property="provinceName" column="pname"/>
+        <result property="staffSex" column="ssex"/>
+        <result property="staffAge" column="sage"/>
+        <result property="expectedSalary" column="salary"/>
+        <result property="description" column="description"/>
+        <result property="enterpriseId" column="uid"/>
+        <result property="enterpriseName" column="uname"/>
+        <result property="staffStatus" column="ss"/>
+        <collection property="careers" ofType="com.es.po.CareerInfo"
+                    select="com.es.dao.CareerInfoDao.queryCareerOfStaff" column="{id=sid}"/>
+    </resultMap>
+    <select id="queryStaffInTransaction" resultType="com.es.dto.StaffInTransactionDto">
+        SELECT staff.staff_id         AS id,
+               staff.staff_name       AS name,
+               staff.user_id          AS enterpriseId,
+               user_details.user_name AS enterpriseName,
+               staff.expected_salary  AS salary,
+               staff.staff_status     AS `status`
+        FROM staff,
+             transaction_staff,
+             user_details
+        WHERE transaction_staff.transaction_id = #{id}
+          AND staff.staff_id = transaction_staff.staff_id
+          AND staff.user_id = user_details.user_id
+    </select>
+    <select id="queryStaffsOfUser" resultMap="staffDto">
+        SELECT staff.staff_id         AS sid,
+               staff.staff_name       AS sname,
+               staff.user_id          AS uid,
+               user_details.user_name AS uname,
+               staff.expected_salary  AS salary,
+               staff.staff_status     AS ss
+        FROM staff,
+             user_details
+        WHERE staff.user_id = #{id}
+          AND staff.user_id = user_details.user_id
+    </select>
+    <select id="queryStaffOfSearch" resultMap="staffDetailsDto">
+        SELECT staff.staff_id          AS sid,
+               staff.staff_name        AS sname,
+               staff.staff_sex         AS ssex,
+               staff.staff_age         AS sage,
+               staff.city_id           AS cid,
+               city.city_name          AS cname,
+               province.province_id    AS pid,
+               province.province_name  AS pname,
+               staff.expected_salary   AS salary,
+               staff.staff_description AS `description`,
+               staff.user_id           AS uid,
+               staff.staff_status      AS ss,
+               user_details.user_name  AS uname
+        FROM staff,
+             user_details,
+             city,
+             province,
+             staff_career
+        WHERE city.city_id = #{tid}
+          AND staff_career.career_id = #{rid}
+          AND staff_career.staff_id = staff.staff_id
+          AND staff.user_id = user_details.user_id
+          AND staff.city_id = city.city_id
+          AND city.province_id = province.province_id
+        LIMIT #{p}, 10
+    </select>
+    <select id="queryStaffsOfClassAndCity" resultMap="staffDto">
+        SELECT DISTINCT staff.staff_id          AS sid,
+               staff.staff_name        AS sname,
+               staff.staff_sex         AS ssex,
+               staff.staff_age         AS sage,
+               staff.city_id           AS cid,
+               city.city_name          AS cname,
+               province.province_id    AS pid,
+               province.province_name  AS pname,
+               staff.expected_salary   AS salary,
+               staff.staff_description AS `description`,
+               staff.user_id           AS uid,
+               staff.staff_status      AS ss,
+               user_details.user_name  AS uname
+        FROM staff,
+             user_details,
+             city,
+             province,
+             staff_career,
+             career_info
+        WHERE career_info.class_id = #{classId}
+          AND city.city_id = #{cityId}
+          AND career_info.career_id = staff_career.career_id
+          AND staff_career.staff_id = staff.staff_id
+          AND staff.user_id = user_details.user_id
+          AND staff.city_id = city.city_id
+          AND province.province_id = city.province_id
+    </select>
+</mapper>

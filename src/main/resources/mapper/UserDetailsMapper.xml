@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.UserDetailsDao">
+    <insert id="insertUserDetails">
+        INSERT INTO user_details(user_id,
+                                 city_id,
+                                 business_no,
+                                 user_name,
+                                 user_phone_no,
+                                 user_email)
+        VALUES (#{user_id},
+                #{city_id},
+                #{business_no},
+                #{user_name},
+                #{user_phone_no},
+                #{user_email})
+    </insert>
+    <insert id="insertUserDetailsObject">
+        INSERT INTO user_details(user_id,
+                                 city_id,
+                                 business_no,
+                                 user_name,
+                                 user_phone_no,
+                                 user_email)
+        VALUES (#{userId},
+                #{cityId},
+                #{businessNo},
+                #{userName},
+                #{userPhoneNo},
+                #{userEmail})
+    </insert>
+    <update id="updateUserDetails">
+        UPDATE user_details
+        <set>
+            <if test="businessNo != null">
+                business_no = #{businessNo},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="userPhoneNo != null">
+                user_phone_no = #{userPhoneNo},
+            </if>
+            <if test="userEmail != null">
+                user_email = #{userEmail},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId},
+            </if>
+        </set>
+        <where>
+            <if test="userId != null">
+                user_id = #{userId}
+            </if>
+        </where>
+    </update>
+    <delete id="clearUserDetails">
+        DELETE
+        FROM user_details
+        WHERE user_id = #{id}
+    </delete>
+    <select id="fetchByUserId" resultType="com.es.po.UserDetails">
+        SELECT user_id,
+               city_id,
+               business_no,
+               user_name,
+               user_phone_no,
+               user_email
+        FROM user_details
+        WHERE user_id = #{id}
+    </select>
+    <select id="queryByCityId" resultType="com.es.po.UserDetails">
+        SELECT user_id,
+               city_id,
+               business_no,
+               user_name,
+               user_phone_no,
+               user_email
+        FROM user_details
+        WHERE city_id = #{id}
+    </select>
+    <select id="fetchUserIdByEmail" resultType="java.lang.Long">
+        SELECT user_id
+        FROM user_details
+        WHERE user_email = #{email}
+    </select>
+    <select id="getUsername" resultType="java.lang.String">
+        SELECT user_name
+        FROM user_details
+        WHERE user_id = #{id}
+    </select>
+    <select id="fetchUserDetails" resultMap="userDetails">
+        SELECT user_details.user_name     AS uname,
+               user_info.user_class       AS uc,
+               user_details.city_id       AS cid,
+               city.city_name             AS cname,
+               province.province_name     AS pname,
+               province.province_id       AS pid,
+               user_details.business_no   AS bno,
+               user_details.user_phone_no AS pno,
+               user_details.user_email    AS email
+        FROM user_info,
+             user_details,
+             city,
+             province
+        WHERE user_info.user_id = #{id}
+          AND user_details.user_id = #{id}
+          AND user_details.city_id = city.city_id
+          AND city.province_id = province.province_id
+    </select>
+    <resultMap id="userDetails" type="com.es.vo.UserDetailsVo">
+        <result property="userName" column="uname"/>
+        <result property="userClass" column="uc"/>
+        <result property="cityId" column="cid"/>
+        <result property="cityName" column="cname"/>
+        <result property="provinceName" column="pname"/>
+        <result property="provinceId" column="pid"/>
+        <result property="businessNo" column="bno"/>
+        <result property="userPhoneNo" column="pno"/>
+        <result property="userEmail" column="email"/>
+    </resultMap>
+</mapper>

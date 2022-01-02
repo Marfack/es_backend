@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.es.dao.TransactionDetailsDao">
+    <insert id="insertTransactionDetails">
+        INSERT INTO transaction_details(transaction_id, transaction_amount)
+        VALUES (#{id}, #{amount})
+    </insert>
+    <update id="updateAmount">
+        UPDATE transaction_details
+        SET transaction_amount = #{amount}
+        WHERE transaction_id = #{id}
+    </update>
+    <delete id="removeTransactionDetails">
+        DELETE
+        FROM transaction_details
+        WHERE transaction_id = #{id}
+    </delete>
+    <select id="fetchTransactionDetails" resultType="com.es.dao.TransactionDetailsDao">
+        SELECT transaction_id,
+               transaction_amount,
+               transaction_time
+        FROM transaction_details
+        WHERE transaction_id = #{id}
+    </select>
+    <select id="fetchTransaction" resultMap="transactionDto">
+        SELECT transaction_info.transaction_id        AS tid,
+               transaction_info.buyer_id              AS bid,
+               transaction_info.transaction_status    AS ts,
+               transaction_details.transaction_amount AS ta,
+               transaction_details.transaction_time   AS tt
+        FROM transaction_info,
+             transaction_details
+        WHERE transaction_info.transaction_id = #{id}
+          AND transaction_info.transaction_id = transaction_details.transaction_id
+    </select>
+    <resultMap id="transactionDto" type="com.es.dto.TransactionDto">
+        <id property="transactionId" column="tid"/>
+        <result property="buyerId" column="bid"/>
+        <result property="transactionAmount" column="ta"/>
+        <result property="transactionStatus" column="ts"/>
+        <result property="transactionTime" column="tt"/>
+        <collection property="staffs" ofType="com.es.dto.StaffInTransactionDto"
+                    select="com.es.dao.StaffDao.queryStaffInTransaction" column="{id=tid}"/>
+    </resultMap>
+</mapper>
