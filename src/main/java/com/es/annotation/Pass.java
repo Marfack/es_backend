@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
  * 用于标记无需token验证的方法
  * @author Marfack
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Pass {

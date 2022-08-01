@@ -2,8 +2,9 @@ package com.es.controller;
 
 import com.es.service.UploadService;
 import com.es.util.JwtUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -15,14 +16,14 @@ import java.io.IOException;
  *
  * @author Marfack
  */
-@Controller
+@RestController
 @RequestMapping("/upload")
 public class UploadController {
 
     @Resource
     UploadService uploadService;
 
-    @RequestMapping("/ico")
+    @PostMapping("/ico")
     public void uploadIco(MultipartFile file, HttpServletRequest request) throws IOException {
         String token = request.getHeader("Token");
         uploadService.uploadIco(JwtUtils.getClaim(token, JwtUtils.ID).asLong(), file);

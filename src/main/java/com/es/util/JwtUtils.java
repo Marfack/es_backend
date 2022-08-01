@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * Created on 2021/12/15 22:23
- * 封装静态Jwt生成工具类，不允许实例化。包含通过user info生成token、token校验和去除token中的值的功能
+ * 封装静态Jwt生成工具类，不允许实例化。包含通过user info生成token、token校验和取出token中的值的功能
  * @author Marfack
  */
 public final class JwtUtils {
